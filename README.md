@@ -1,4 +1,4 @@
-# lerobot_on_track
+# Astromobile
 
 Robot móvil diferencial con brazo manipulador SO101, navegación autónoma y teleoperación remota.
 
