@@ -40,10 +40,10 @@
 
 | Part | Quantity | Cost | URL | Notes | Status |
 |------|----------|------|-----|-------|--------|
-|      |          |      |     |       |        |
-|      |          |      |     |       |        |
-|      |          |      |     |       |        |
-|      |          |      |     |       |        |
+| Cámara CSI (Jetson) | 1 | | | Conectada al puerto CSI de la Jetson, index 0 en cv2, 640×480 @ 30fps | |
+| Cámara USB | 1 | | | Cámara genérica USB, index 1 en cv2, 640×480 @ 30fps | |
+| Encoders cuadratura CQR37D | 4 | | | Integrados en los motores CQR37D 210:1 — 64 CPR en eje motor, 13440 pulsos/vuelta en eje salida (X4) | Adquirido |
+| Receptor FlySky IA6B | 1 | | https://www.flysky-cn.com/ia6b-canshu | iBUS 14 canales, canal 6 selecciona modo RC/GCS. Ya listado en Electronics. | Adquirido |
 |      |          |      |     |       |        |
 
 ---
