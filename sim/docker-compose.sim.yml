@@ -1,0 +1,91 @@
+### Simulacion ROS 2 Humble + Gazebo en Mac (Intel y Apple Silicon)
+###
+### Requisitos Mac:
+###   1. Docker Desktop instalado
+###   2. XQuartz instalado:  brew install --cask xquartz
+###   3. En XQuartz > Preferences > Security > marcar "Allow connections from network clients"
+###   4. Reiniciar XQuartz y correr:  xhost + 127.0.0.1
+###
+### Uso:
+###   docker compose -f sim/docker-compose.sim.yml up
+###
+### Para abrir otra terminal dentro del contenedor:
+###   docker compose -f sim/docker-compose.sim.yml exec sim bash
+
+services:
+
+  sim:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sim
+    platform: linux/arm64
+    image: robot_sim:humble
+    container_name: robot_sim
+    privileged: true
+
+    environment:
+      # Display virtual interno (Xvfb) → accesible via VNC en puerto 5900
+      - DISPLAY=:99
+      - QT_X11_NO_MITSHM=1
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - GAZEBO_MODEL_PATH=/robot_ws/src/robot_sim/worlds
+      - ROS_DOMAIN_ID=42
+
+    volumes:
+      - ./robot_ws:/robot_ws:rw
+      - gazebo_cache:/root/.gazebo
+
+    ports:
+      - "5900:5900"    # VNC nativo
+      - "6080:6080"    # noVNC — abrir http://localhost:6080 en el navegador
+
+    # Arrancar Xvfb + VNC + noVNC + simulacion
+    command: >
+      bash -c "
+        Xvfb :99 -screen 0 1600x900x24 &
+        sleep 1 &&
+        x11vnc -display :99 -nopw -listen 0.0.0.0 -xkb -forever -shared &
+        websockify --web /usr/share/novnc 6080 localhost:5900 &
+        source /opt/ros/humble/setup.bash &&
+        cd /robot_ws &&
+        if [ ! -f install/setup.bash ]; then
+          echo '>>> Compilando paquete robot_sim...' &&
+          colcon build --symlink-install --packages-select robot_sim;
+        fi &&
+        source install/setup.bash &&
+        echo '>>> Lanzando simulacion...' &&
+        ros2 launch robot_sim simulation.launch.py
+      "
+
+    stdin_open: true
+    tty: true
+
+  # Terminal auxiliar (Nav2 goal, rviz2, etc.)
+  # Uso: docker compose -f docker-compose.sim.yml run --rm tools bash
+  tools:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sim
+    platform: linux/arm64
+    image: robot_sim:humble
+    container_name: robot_tools
+    environment:
+      - DISPLAY=host.docker.internal:0
+      - QT_X11_NO_MITSHM=1
+      - ROS_DOMAIN_ID=42
+    volumes:
+      - ./robot_ws:/robot_ws:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
+    profiles: ["tools"]
+    command: >
+      bash -c "
+        source /opt/ros/humble/setup.bash &&
+        source /robot_ws/install/setup.bash &&
+        bash
+      "
+    stdin_open: true
+    tty: true
+
+volumes:
+  gazebo_cache:

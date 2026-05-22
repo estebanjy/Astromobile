@@ -1,0 +1,7 @@
+# Jetson Nano — control_server.py
+# Instalar con: pip install -r robot/requirements.txt
+
+pyzmq>=27.0.0
+opencv-python>=4.9.0
+pyserial>=3.5
+draccus==0.10.0

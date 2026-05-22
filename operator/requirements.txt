@@ -1,0 +1,7 @@
+# Mac — gcs_app.py + so101_remote_teleop.py
+# Instalar con: pip install -r operator/requirements.txt
+
+pyzmq>=27.0.0
+pyqt6>=6.11.0
+numpy>=2.0.0
+opencv-python>=4.9.0

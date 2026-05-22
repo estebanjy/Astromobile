@@ -1,0 +1,29 @@
+FROM osrf/ros:humble-desktop-full
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Nav2 + Gazebo + robot_localization + xacro + VNC
+RUN apt-get update && apt-get install -y \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
+    ros-humble-robot-localization \
+    ros-humble-gazebo-ros-pkgs \
+    ros-humble-gazebo-ros2-control \
+    ros-humble-xacro \
+    ros-humble-joint-state-publisher \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-rviz2 \
+    ros-humble-tf2-tools \
+    python3-colcon-common-extensions \
+    python3-rosdep \
+    xvfb \
+    x11vnc \
+    xterm \
+    novnc \
+    websockify \
+    && rm -rf /var/lib/apt/lists/*
+
+# Sourcing automatico en bash interactivo
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+
+SHELL ["/bin/bash", "-c"]
