@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+
 import logging
 import os
 import platform
@@ -54,7 +56,7 @@ def inside_slurm():
     return "SLURM_JOB_ID" in os.environ
 
 
-def auto_select_torch_device() -> "torch.device":
+def auto_select_torch_device() -> torch.device:
     """Tries to select automatically a torch device."""
     if torch.cuda.is_available():
         logging.info("Cuda backend detected, using cuda.")
