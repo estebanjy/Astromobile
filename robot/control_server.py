@@ -61,8 +61,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 @dataclass
 class CameraConfig:
-    csi_index: int = 0       # indice cv2 para camara CSI
-    usb_index: int = 1       # indice cv2 para camara USB
+    csi_index: int = 0  # indice cv2 para camara CSI
+    usb_index: int = 1  # indice cv2 para camara USB
     width: int = 640
     height: int = 480
     fps: int = 30
@@ -71,7 +71,7 @@ class CameraConfig:
 
 @dataclass
 class PicoConfig:
-    port: str = "/dev/ttyACM1"   # Puerto serial del Pico (ACM0 suele ser el brazo)
+    port: str = "/dev/ttyACM1"  # Puerto serial del Pico (ACM0 suele ser el brazo)
     baudrate: int = 115200
     timeout: float = 0.1
 
@@ -81,7 +81,7 @@ class ServerConfig:
     port_zmq_cmd: int = 5555
     port_zmq_obs: int = 5556
     max_loop_hz: int = 30
-    connection_time_s: int = 86400   # 24 horas
+    connection_time_s: int = 86400  # 24 horas
 
 
 @dataclass
@@ -121,7 +121,9 @@ class CameraStream:
         logger.info(f"Abriendo camara {self.name} (index={self.index})...")
         cap = cv2.VideoCapture(self.index)
         if not cap.isOpened():
-            logger.warning(f"Camara {self.name} no disponible (index={self.index}). Continuando sin ella.")
+            logger.warning(
+                f"Camara {self.name} no disponible (index={self.index}). Continuando sin ella."
+            )
             return
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
@@ -161,9 +163,11 @@ class PicoInterface:
     """Comunicacion serial con el Pico para control de base y lectura de encoders."""
 
     # Parametros fisicos del robot (ajustar segun hardware)
-    WHEEL_RADIUS_M = 0.065         # radio de rueda en metros
-    WHEEL_BASE_M = 0.30            # distancia entre ruedas izquierda-derecha
-    TICKS_PER_REV = 13440          # 64 CPR * 210 (reduccion) * 4 (X4) = pulsos/vuelta en eje salida
+    WHEEL_RADIUS_M = 0.065  # radio de rueda en metros
+    WHEEL_BASE_M = 0.30  # distancia entre ruedas izquierda-derecha
+    TICKS_PER_REV = (
+        13440  # 64 CPR * 210 (reduccion) * 4 (X4) = pulsos/vuelta en eje salida
+    )
 
     def __init__(self, cfg: PicoConfig):
         self.cfg = cfg
@@ -188,7 +192,9 @@ class PicoInterface:
             )
             logger.info(f"Pico conectado en {self.cfg.port}")
         except Exception as e:
-            logger.warning(f"No se pudo conectar al Pico ({self.cfg.port}): {e}. Base movil deshabilitada.")
+            logger.warning(
+                f"No se pudo conectar al Pico ({self.cfg.port}): {e}. Base movil deshabilitada."
+            )
             self._serial = None
             return
 
@@ -298,10 +304,18 @@ def main(cfg: ControlServerConfig):
 
     # --- Camaras ---
     cam_csi = CameraStream(
-        cfg.camera.csi_index, cfg.camera.width, cfg.camera.height, cfg.camera.fps, name="CSI"
+        cfg.camera.csi_index,
+        cfg.camera.width,
+        cfg.camera.height,
+        cfg.camera.fps,
+        name="CSI",
     )
     cam_usb = CameraStream(
-        cfg.camera.usb_index, cfg.camera.width, cfg.camera.height, cfg.camera.fps, name="USB"
+        cfg.camera.usb_index,
+        cfg.camera.width,
+        cfg.camera.height,
+        cfg.camera.fps,
+        name="USB",
     )
     cam_csi.start()
     cam_usb.start()
@@ -358,11 +372,11 @@ def main(cfg: ControlServerConfig):
             try:
                 arm_obs = robot.get_observation()
                 arm_serializable = {
-                    k: float(v) for k, v in arm_obs.items()
-                    if not hasattr(v, "shape")
+                    k: float(v) for k, v in arm_obs.items() if not hasattr(v, "shape")
                 }
             except Exception as e:
-                logger.error(f"Error leyendo brazo: {e}")
+                import traceback
+                logger.error(f"Error leyendo brazo: {e}\n{traceback.format_exc()}")
                 arm_serializable = {}
 
             # --- Construir y enviar observacion ---
