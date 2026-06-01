@@ -198,6 +198,7 @@ class SOFollower(Robot):
     def get_observation(self) -> RobotObservation:
         # Read arm position
         start = time.perf_counter()
+        self.bus.port_handler.clearPort()
         obs_dict = {motor: self.bus.read("Present_Position", motor) for motor in self.bus.motors}
         obs_dict = {f"{motor}.pos": val for motor, val in obs_dict.items()}
         dt_ms = (time.perf_counter() - start) * 1e3
