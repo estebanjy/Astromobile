@@ -110,6 +110,7 @@ class SOFollower(Robot):
             cam.connect()
 
         self.configure()
+        self.bus.port_handler.ser.reset_input_buffer()
         logger.info(f"{self} connected.")
 
     @property
@@ -198,7 +199,7 @@ class SOFollower(Robot):
     def get_observation(self) -> RobotObservation:
         # Read arm position
         start = time.perf_counter()
-        self.bus.port_handler.clearPort()
+        self.bus.port_handler.ser.reset_input_buffer()
         obs_dict = {motor: self.bus.read("Present_Position", motor) for motor in self.bus.motors}
         obs_dict = {f"{motor}.pos": val for motor, val in obs_dict.items()}
         dt_ms = (time.perf_counter() - start) * 1e3
