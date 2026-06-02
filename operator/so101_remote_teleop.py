@@ -33,12 +33,20 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="SO101 teleoperación remota vía ZMQ")
-    parser.add_argument("--leader_port", required=True, help="Puerto USB del leader en el Mac")
+    parser.add_argument(
+        "--leader_port", required=True, help="Puerto USB del leader en el Mac"
+    )
     parser.add_argument("--leader_id", default="leader", help="ID del leader")
     parser.add_argument("--remote_ip", required=True, help="IP de la Jetson")
-    parser.add_argument("--port_cmd", type=int, default=5555, help="Puerto ZMQ comandos")
-    parser.add_argument("--port_obs", type=int, default=5556, help="Puerto ZMQ observaciones")
-    parser.add_argument("--fps", type=int, default=30, help="Frecuencia de teleoperación")
+    parser.add_argument(
+        "--port_cmd", type=int, default=5555, help="Puerto ZMQ comandos"
+    )
+    parser.add_argument(
+        "--port_obs", type=int, default=5556, help="Puerto ZMQ observaciones"
+    )
+    parser.add_argument(
+        "--fps", type=int, default=30, help="Frecuencia de teleoperación"
+    )
     args = parser.parse_args()
 
     # Conectar leader
@@ -59,7 +67,9 @@ def main():
     obs_socket.setsockopt(zmq.CONFLATE, 1)
     obs_socket.connect(f"tcp://{args.remote_ip}:{args.port_obs}")
 
-    logger.info(f"Conectado al follower en {args.remote_ip}. Iniciando teleoperación...")
+    logger.info(
+        f"Conectado al follower en {args.remote_ip}. Iniciando teleoperación..."
+    )
     logger.info("Presiona Ctrl+C para detener.")
 
     try:
@@ -71,7 +81,7 @@ def main():
 
             # Enviar al follower en la Jetson
             try:
-                cmd_socket.send_string(json.dumps(action), flags=zmq.NOBLOCK)
+                cmd_socket.send_string(json.dumps({"arm": action}), flags=zmq.NOBLOCK)
             except zmq.Again:
                 pass
 

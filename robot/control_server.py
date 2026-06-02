@@ -302,23 +302,9 @@ def main(cfg: ControlServerConfig):
     pico = PicoInterface(cfg.pico)
     pico.start()
 
-    # --- Camaras ---
-    cam_csi = CameraStream(
-        cfg.camera.csi_index,
-        cfg.camera.width,
-        cfg.camera.height,
-        cfg.camera.fps,
-        name="CSI",
-    )
-    cam_usb = CameraStream(
-        cfg.camera.usb_index,
-        cfg.camera.width,
-        cfg.camera.height,
-        cfg.camera.fps,
-        name="USB",
-    )
-    cam_csi.start()
-    cam_usb.start()
+    # --- Camaras (deshabilitadas) ---
+    cam_csi = None
+    cam_usb = None
 
     # --- ZMQ ---
     context = zmq.Context()
@@ -384,8 +370,8 @@ def main(cfg: ControlServerConfig):
                 "arm": arm_serializable,
                 "odom": pico.get_odometry(),
                 "mode": pico.mode,
-                "camera_csi": cam_csi.get_jpeg_b64(cfg.camera.jpeg_quality),
-                "camera_usb": cam_usb.get_jpeg_b64(cfg.camera.jpeg_quality),
+                "camera_csi": "",
+                "camera_usb": "",
             }
 
             try:
@@ -403,8 +389,6 @@ def main(cfg: ControlServerConfig):
         logger.info("Interrupcion. Apagando...")
     finally:
         pico.stop()
-        cam_csi.stop()
-        cam_usb.stop()
         robot.disconnect()
         cmd_socket.close()
         obs_socket.close()
